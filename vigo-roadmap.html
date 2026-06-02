@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vigo — Роадмапа R1 → R19</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --bg2:#0e1424; --panel:rgba(255,255,255,0.04); --panel2:rgba(255,255,255,0.06);
+    --stroke:rgba(255,255,255,0.10); --stroke2:rgba(255,255,255,0.16);
+    --txt:#e8edf7; --muted:#94a3b8; --muted2:#6b7794;
+    --done:#22c55e; --live:#38bdf8; --prog:#f59e0b; --plan:#8b5cf6; --future:#64748b; --crit:#ef4444;
+    --accent:#6366f1; --accent2:#a855f7; --gold:#fbbf24;
+    --r:16px; --shadow:0 12px 40px rgba(0,0,0,0.45);
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans); color:var(--txt); line-height:1.55;
+    background:
+      radial-gradient(1200px 700px at 85% -5%, rgba(99,102,241,0.18), transparent 60%),
+      radial-gradient(1000px 600px at 5% 10%, rgba(168,85,247,0.14), transparent 55%),
+      radial-gradient(900px 800px at 50% 120%, rgba(56,189,248,0.10), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    min-height:100vh; padding-bottom:80px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+  a{color:inherit}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(18px) saturate(160%);
+    background:linear-gradient(180deg, rgba(10,14,26,0.92), rgba(10,14,26,0.72));
+    border-bottom:1px solid var(--stroke);
+  }
+  .topbar .inner{display:flex; align-items:center; gap:18px; padding:13px 22px; max-width:1240px; margin:0 auto; flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.3px;font-size:17px}
+  .brand .logo{
+    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 6px 18px rgba(99,102,241,.5)
+  }
+  .brand small{display:block;font-weight:500;font-size:11px;color:var(--muted);letter-spacing:0}
+  .spacer{flex:1}
+  .persona{display:flex;gap:5px;background:var(--panel);border:1px solid var(--stroke);padding:5px;border-radius:13px}
+  .persona button{
+    font-family:var(--sans);font-size:13px;font-weight:600;color:var(--muted);
+    background:transparent;border:0;padding:8px 14px;border-radius:9px;cursor:pointer;transition:.18s;white-space:nowrap
+  }
+  .persona button:hover{color:var(--txt)}
+  .persona button.active{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 14px rgba(99,102,241,.45)}
+
+  /* ===== Hero ===== */
+  .hero{padding:46px 0 18px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:14px}
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--prog);box-shadow:0 0 0 4px rgba(245,158,11,.18);animation:pulse 2s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 9px rgba(245,158,11,0)}}
+  h1{font-size:clamp(30px,5vw,50px);line-height:1.04;letter-spacing:-1.4px;font-weight:850;margin-bottom:14px}
+  h1 .grad{background:linear-gradient(110deg,#fff 10%,#c7d2fe 45%,#a855f7 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede{font-size:17px;color:var(--muted);max-width:760px}
+  .persona-note{margin-top:14px;font-size:14px;padding:12px 16px;border-radius:12px;border:1px solid var(--stroke);background:var(--panel);max-width:820px}
+  .persona-note b{color:#fff}
+
+  /* ===== Milestone hero cards ===== */
+  .ms-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:30px 0 8px}
+  .ms-card{position:relative;overflow:hidden;border-radius:18px;padding:22px;border:1px solid var(--stroke);background:var(--panel);transition:.2s}
+  .ms-card:hover{transform:translateY(-3px);border-color:var(--stroke2)}
+  .ms-card .ico{font-size:24px;margin-bottom:8px}
+  .ms-card .lab{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .ms-card .date{font-size:27px;font-weight:850;letter-spacing:-.6px;margin:5px 0 4px}
+  .ms-card .sub{font-size:13.5px;color:var(--muted)}
+  .ms-card.mvp{background:linear-gradient(150deg,rgba(34,197,94,.16),rgba(56,189,248,.06));border-color:rgba(34,197,94,.4)}
+  .ms-card.mvp .date{color:#4ade80}
+  .ms-card.rel{background:linear-gradient(150deg,rgba(168,85,247,.18),rgba(99,102,241,.07));border-color:rgba(168,85,247,.42)}
+  .ms-card.rel .date{color:#c084fc}
+  .ms-card.now{background:linear-gradient(150deg,rgba(245,158,11,.16),rgba(239,68,68,.05));border-color:rgba(245,158,11,.4)}
+  .ms-card.now .date{color:#fbbf24}
+  .ms-card.law{background:linear-gradient(150deg,rgba(239,68,68,.14),rgba(255,255,255,.02));border-color:rgba(239,68,68,.36)}
+  .ms-card.law .date{color:#f87171;font-size:22px}
+  .ms-card .tag{position:absolute;top:14px;right:14px;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid var(--stroke)}
+
+  /* ===== Stat strip ===== */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:26px 0}
+  .stat{padding:18px;border-radius:14px;background:var(--panel);border:1px solid var(--stroke)}
+  .stat .n{font-size:28px;font-weight:850;letter-spacing:-.8px;background:linear-gradient(120deg,#fff,#c7d2fe);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+  /* ===== Section ===== */
+  section{margin-top:46px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .sec-head h2{font-size:23px;font-weight:800;letter-spacing:-.5px}
+  .sec-head .hint{font-size:13.5px;color:var(--muted)}
+
+  /* ===== Progress rings ===== */
+  .rings{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .ring-card{display:flex;align-items:center;gap:18px;padding:20px;border-radius:16px;background:var(--panel);border:1px solid var(--stroke)}
+  .ring{position:relative;width:104px;height:104px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:23px;font-weight:850}
+  .ring-card .meta h3{font-size:15.5px;font-weight:750;margin-bottom:3px}
+  .ring-card .meta p{font-size:13px;color:var(--muted)}
+
+  /* ===== Gantt ===== */
+  .gantt-wrap{border-radius:18px;border:1px solid var(--stroke);background:linear-gradient(180deg,var(--panel),rgba(255,255,255,.015));padding:18px 18px 8px;overflow-x:auto}
+  .gantt{min-width:880px;position:relative}
+  .gantt-axis{position:relative;height:30px;margin-left:var(--lblw);border-bottom:1px solid var(--stroke)}
+  .gantt-axis .mtick{position:absolute;top:0;height:100%;border-left:1px dashed rgba(255,255,255,.08);font-size:11px;color:var(--muted2);padding-left:6px;padding-top:6px;white-space:nowrap}
+  .gantt-bands{position:absolute;left:var(--lblw);right:0;top:30px;bottom:24px;pointer-events:none}
+  .band{position:absolute;top:0;bottom:0;border-radius:8px}
+  .grow{position:relative;display:flex;align-items:center;height:30px;margin:5px 0}
+  .grow .glabel{width:var(--lblw);flex:none;font-size:12.5px;font-weight:650;padding-right:12px;text-align:right;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .grow .gtrack{position:relative;flex:1;height:100%}
+  .gbar{position:absolute;top:5px;height:20px;border-radius:7px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:700;color:#04121f;white-space:nowrap;overflow:visible;cursor:default;transition:.18s;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+  .gbar:hover{filter:brightness(1.12);transform:scaleY(1.12);z-index:5}
+  .gbar .gb-txt{position:absolute;left:calc(100% + 8px);color:var(--muted);font-weight:600;font-size:10.5px}
+  .gbar.s-done{background:linear-gradient(120deg,#16a34a,#22c55e)}
+  .gbar.s-live{background:linear-gradient(120deg,#0ea5e9,#38bdf8)}
+  .gbar.s-prog{background:linear-gradient(120deg,#d97706,#fbbf24);box-shadow:0 0 0 1px rgba(251,191,36,.5),0 4px 14px rgba(245,158,11,.4);animation:glow 2.4s infinite}
+  @keyframes glow{50%{box-shadow:0 0 0 3px rgba(251,191,36,.25),0 4px 18px rgba(245,158,11,.55)}}
+  .gbar.s-plan{background:linear-gradient(120deg,#7c3aed,#a855f7);color:#fff;opacity:.92}
+  .gbar.s-future{background:repeating-linear-gradient(45deg,#475569,#475569 7px,#3c485c 7px,#3c485c 14px);color:#cbd5e1}
+  .gbar.s-partial{background:linear-gradient(120deg,#0e7490,#22d3ee);color:#04121f}
+  .gmark{position:absolute;top:-2px;bottom:18px;width:2px;z-index:6}
+  .gmark .flag{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:15px;white-space:nowrap}
+  .gmark .ml-lab{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;background:#04121f;padding:1px 5px;border-radius:5px;white-space:nowrap;border:1px solid var(--stroke2)}
+  .gnote{font-size:12px;color:var(--muted2);padding:10px 4px 6px}
+
+  /* ===== Legend ===== */
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:6px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:13px;height:13px;border-radius:4px;display:inline-block}
+
+  /* ===== Sprint callout ===== */
+  .sprint{border-radius:18px;padding:22px;border:1px solid rgba(34,197,94,.3);background:linear-gradient(150deg,rgba(34,197,94,.08),rgba(255,255,255,.01))}
+  .sprint h3{font-size:17px;margin-bottom:4px}
+  .sprint .desc{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+  .sprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .sp{padding:13px;border-radius:11px;background:var(--panel);border:1px solid var(--stroke)}
+  .sp .e{font-weight:800;font-size:14px}
+  .sp .t{font-size:12px;color:var(--muted);margin:2px 0 7px;min-height:30px}
+  .sp .h{font-size:12.5px;font-weight:700;color:#4ade80}
+  .sp .h.heavy{color:#fbbf24}
+
+  /* ===== Charts ===== */
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:880px){.chart-grid{grid-template-columns:1fr}}
+  .chart-card{padding:20px;border-radius:16px;background:var(--panel);border:1px solid var(--stroke)}
+  .chart-card h3{font-size:15px;font-weight:750;margin-bottom:3px}
+  .chart-card .csub{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .chart-card svg{width:100%;height:auto;display:block}
+
+  /* ===== Epic cards ===== */
+  .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+  .filters button{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--muted);background:var(--panel);border:1px solid var(--stroke);padding:7px 13px;border-radius:9px;cursor:pointer;transition:.16s}
+  .filters button:hover{color:var(--txt);border-color:var(--stroke2)}
+  .filters button.active{color:#fff;background:var(--panel2);border-color:var(--accent)}
+  .epics{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+  .epic{position:relative;border-radius:16px;padding:18px;border:1px solid var(--stroke);background:linear-gradient(180deg,var(--panel),rgba(255,255,255,.012));transition:.2s;overflow:hidden}
+  .epic::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+  .epic.done::before{background:var(--done)} .epic.live::before{background:var(--live)}
+  .epic.prog::before{background:var(--prog)} .epic.plan::before{background:var(--plan)}
+  .epic.future::before{background:var(--future)} .epic.partial::before{background:#22d3ee}
+  .epic:hover{transform:translateY(-3px);border-color:var(--stroke2);box-shadow:var(--shadow)}
+  .epic.prog{border-color:rgba(245,158,11,.4);box-shadow:0 0 0 1px rgba(245,158,11,.18)}
+  .ehead{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px}
+  .eid{font-family:var(--mono);font-size:13px;font-weight:800;padding:5px 9px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);flex:none}
+  .etitle{font-size:15.5px;font-weight:750;letter-spacing:-.2px;line-height:1.25}
+  .ephase{font-size:11px;color:var(--muted2);font-weight:600;margin-top:2px}
+  .badge{position:absolute;top:16px;right:16px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:4px 9px;border-radius:20px}
+  .badge.done{color:#4ade80;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.35)}
+  .badge.live{color:#7dd3fc;background:rgba(56,189,248,.13);border:1px solid rgba(56,189,248,.35)}
+  .badge.prog{color:#fbbf24;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.38)}
+  .badge.plan{color:#c4b5fd;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.36)}
+  .badge.future{color:#cbd5e1;background:rgba(100,116,139,.16);border:1px solid rgba(100,116,139,.4)}
+  .badge.partial{color:#67e8f9;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.34)}
+  .edesc{font-size:13.5px;color:#c7d0e0;margin:6px 0 12px}
+  .edesc.founder-only{color:#d9e1ee}
+  .prog-line{height:6px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin:10px 0}
+  .prog-line i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .prog-line.done i{background:linear-gradient(90deg,#16a34a,#4ade80)}
+  .prog-line.prog i{background:linear-gradient(90deg,#d97706,#fbbf24)}
+  .emeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--stroke);color:var(--muted);white-space:nowrap}
+  .chip b{color:var(--txt);font-weight:750}
+  .chip.dev-only,.chip.investor-only{display:none}
+  .edates{font-size:11.5px;color:var(--muted2);margin-top:9px;font-family:var(--mono)}
+
+  /* ===== persona visibility ===== */
+  .dev-only,.founder-only,.investor-only{display:none}
+  body.persona-dev .dev-only{display:revert}
+  body.persona-founder .founder-only{display:revert}
+  body.persona-investor .investor-only{display:revert}
+  body.persona-dev .epic .chip.dev-only{display:revert}
+  body.persona-investor .epic .chip.investor-only{display:revert}
+  /* text swap for desc */
+  .edesc .d-founder,.edesc .d-dev,.edesc .d-investor{display:none}
+  body.persona-founder .edesc .d-founder{display:revert}
+  body.persona-dev .edesc .d-dev{display:revert}
+  body.persona-investor .edesc .d-investor{display:revert}
+
+  .footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--stroke);font-size:12.5px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .footer b{color:var(--muted)}
+  .disclaimer{margin-top:16px;font-size:12px;color:var(--muted2);background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);padding:11px 14px;border-radius:11px}
+
+  /* iceberg + speed narrative */
+  .narr{display:grid;grid-template-columns:.82fr 1.18fr;gap:18px}
+  @media(max-width:880px){.narr{grid-template-columns:1fr}}
+  .iceberg{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--stroke);min-height:300px;
+    background:linear-gradient(180deg,#0c2747 0%,#0c2747 30%,#0a1a30 30%,#05101e 100%)}
+  .iceberg .water{position:absolute;left:0;right:0;top:30%;height:2px;background:rgba(56,189,248,.55);box-shadow:0 0 20px rgba(56,189,248,.65)}
+  .iceberg .water span{position:absolute;right:12px;top:6px;font-size:10px;color:#7dd3fc;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .ice-top{position:absolute;top:0;left:0;right:0;height:30%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:8px}
+  .ice-top .pc{font-size:21px;font-weight:850;color:#fbbf24;line-height:1.1}
+  .ice-top .lb{font-size:11.5px;color:#cbd5e1;margin-top:2px}
+  .ice-bot{position:absolute;top:33%;left:0;right:0;bottom:0;padding:14px 16px}
+  .ice-bot .pc{font-size:30px;font-weight:850;color:#4ade80;line-height:1}
+  .ice-bot .lb{font-size:12px;color:#94a3b8;margin:2px 0 10px}
+  .ice-bot ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .ice-bot li{font-size:10.5px;font-weight:600;color:#cbd5e1;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);padding:3px 8px;border-radius:7px}
+  .speed{display:flex;flex-direction:column;gap:13px;justify-content:center}
+  .speed .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+  .speed .top b{font-weight:750}
+  .speed .bar{height:26px;border-radius:8px;background:rgba(255,255,255,.05);overflow:hidden;border:1px solid var(--stroke)}
+  .speed .bar i{display:block;height:100%;border-radius:8px}
+  .speed .bar.norm i{width:100%;background:repeating-linear-gradient(45deg,#475569,#475569 8px,#3c485c 8px,#3c485c 16px)}
+  .speed .bar.fact i{width:12%;background:linear-gradient(90deg,#16a34a,#4ade80);box-shadow:0 0 16px rgba(34,197,94,.5)}
+  .callout{padding:14px 16px;border-radius:12px;border:1px solid rgba(99,102,241,.3);background:linear-gradient(150deg,rgba(99,102,241,.12),rgba(168,85,247,.05));font-size:13.5px;line-height:1.5}
+  .callout b{color:#c7d2fe}
+
+  /* stepper */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .step{position:relative;padding:18px;border-radius:14px;border:1px solid var(--stroke);background:var(--panel)}
+  .step .when{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--accent2)}
+  .step .ico{font-size:22px;margin:6px 0}
+  .step h4{font-size:14.5px;font-weight:750;margin-bottom:5px;letter-spacing:-.2px}
+  .step p{font-size:12.5px;color:var(--muted)}
+  .step .num{position:absolute;top:14px;right:16px;font-size:22px;font-weight:850;color:rgba(255,255,255,.1)}
+  .step.s-ok{border-color:rgba(34,197,94,.38);background:linear-gradient(160deg,rgba(34,197,94,.1),transparent)}
+  .step.s-ok .when{color:#4ade80}
+  .step.s-mvp{border-color:rgba(34,197,94,.45);box-shadow:0 0 0 1px rgba(34,197,94,.2)}
+
+  /* focus */
+  .focus{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .fc{padding:18px;border-radius:14px;border:1px solid var(--stroke);background:var(--panel);border-left:4px solid var(--prog)}
+  .fc h4{font-size:14.5px;font-weight:750;margin-bottom:6px}
+  .fc p{font-size:12.5px;color:var(--muted)}
+  .fc .tag{display:inline-block;margin-top:10px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:7px;background:rgba(245,158,11,.14);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+</style>
+</head>
+<body class="persona-founder">
+
+<div class="topbar">
+  <div class="inner">
+    <div class="brand">
+      <div class="logo">▲</div>
+      <div>Vigo <small>AI Board · Roadmap R1 → R19</small></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="persona" role="tablist" aria-label="Роль">
+      <button data-persona="founder" class="active">👔 Основатель</button>
+      <button data-persona="dev">💻 Head Developer</button>
+      <button data-persona="investor">📊 Инвестор</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow"><span class="dot"></span> Статус на 2 июня 2026 · сейчас в работе R15.4</div>
+    <h1>Путь Vigo: от фундамента <span class="grad">к автономному ИИ-совету</span> для VigoImmobilien</h1>
+    <p class="lede">14 эпиков платформы построены за ~4 недели многоагентными «роями» — это невидимый фундамент (auth, изоляция, ИИ-рантайм, биллинг, секреты, трекинг). Сейчас собираем зарабатывающее ядро (R15) и готовим <b style="color:#e8edf7">панель арендатора</b> — первый видимый деливерабл. Дальше — рост, финансы, управление и полный релиз.</p>
+
+    <div class="persona-note founder-only">👔 <b>Взгляд основателя:</b> упор на бизнес-смысл, деньги и сроки — <b>когда заработает VigoImmobilien</b> и <b>когда выйдет полный продукт</b>. Технический жаргон скрыт.</div>
+    <div class="persona-note dev-only">💻 <b>Взгляд Head Developer:</b> stories, тесты, миграции, ADR, размер роёв, wall-clock, PR/теги и блокеры по каждому эпику.</div>
+    <div class="persona-note investor-only">📊 <b>Взгляд инвестора:</b> темп поставки, вехи, дедлайны, регуляторные риски (EU AI Act) и две точки релиза.</div>
+  </div>
+
+  <!-- MILESTONE CARDS -->
+  <div class="ms-cards">
+    <div class="ms-card now">
+      <span class="tag">СЕЙЧАС</span>
+      <div class="ico">🛠️</div>
+      <div class="lab">Текущий этап</div>
+      <div class="date">R15.4</div>
+      <div class="sub">Realtor + подбор объектов через Justimmo. R15.1 и R15.6 уже готовы.</div>
+    </div>
+    <div class="ms-card mvp">
+      <span class="tag">🎯 MVP</span>
+      <div class="ico">🚀</div>
+      <div class="lab">Рабочий FLOW для VigoImmobilien</div>
+      <div class="date" style="font-size:21px">2-я пол. июня</div>
+      <div class="sub">«Vigo v1»: тенант-панель + флоу лид → ИИ Sales → Realtor → CRM. Демо-слайс — уже через ~неделю.</div>
+    </div>
+    <div class="ms-card rel">
+      <span class="tag">🏁 RELEASE</span>
+      <div class="ico">🏛️</div>
+      <div class="lab">Полный релиз продукта</div>
+      <div class="date">~конец авг.</div>
+      <div class="sub">R18 — все 10 ролей ИИ-совета + single-tenant GA hardening.</div>
+    </div>
+    <div class="ms-card law">
+      <span class="tag">⚖️ LAW</span>
+      <div class="ico">📜</div>
+      <div class="lab">EU AI Act Art 50 — жёсткий дедлайн</div>
+      <div class="date">2 авг. 2026</div>
+      <div class="sub">Обязательное раскрытие «сгенерировано ИИ». Контент-публикация должна быть compliant до этой даты.</div>
+    </div>
+  </div>
+
+  <!-- STAT STRIP -->
+  <div class="stats" id="stats"></div>
+
+  <!-- WHY NOT A BOTTLENECK -->
+  <section>
+    <div class="sec-head"><h2>Почему это не «узкое горлышко»</h2><span class="hint">самое важное для владельца</span></div>
+    <div class="narr">
+      <div class="iceberg">
+        <div class="ice-top">
+          <div class="pc">~20%</div>
+          <div class="lb">Видимое — осталось<br>тенант-панель · демо-флоу · полировка</div>
+        </div>
+        <div class="water"><span>что видно</span></div>
+        <div class="ice-bot">
+          <div class="pc">~80% ✅</div>
+          <div class="lb">Невидимый фундамент — построен и в проде</div>
+          <ul>
+            <li>Auth + JWT</li><li>Изоляция тенантов</li><li>Рантайм ИИ-агентов</li><li>Контроль расходов LLM</li>
+            <li>Секреты (Vault)</li><li>Трекинг конверсий</li><li>Наблюдаемость</li><li>Compliance</li><li>Публикация контента</li>
+          </ul>
+        </div>
+      </div>
+      <div class="speed">
+        <div>
+          <div class="top"><b>Обычная команда (5–8 инженеров)</b><span style="color:var(--muted)">6–12 месяцев</span></div>
+          <div class="bar norm"><i></i></div>
+        </div>
+        <div>
+          <div class="top"><b>Факт: 1 человек + ИИ-рои</b><span style="color:#4ade80;font-weight:750">~4 недели</span></div>
+          <div class="bar fact"><i></i></div>
+        </div>
+        <div class="callout">💡 <b>«Горлышко» — не в объёме работы, а в порядке.</b> Строили фундамент-first (правильная инженерная последовательность): сначала невидимая база, на которой видимые фичи держатся и не падают. Сейчас — точка перелома: база готова → тенант-панель и боевой флоу VigoImmobilien поедут кратно быстрее.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRESS RINGS -->
+  <section>
+    <div class="sec-head"><h2>Где мы сейчас</h2><span class="hint">прогресс до двух точек релиза (оценка)</span></div>
+    <div class="rings">
+      <div class="ring-card">
+        <div class="ring" data-pct="88" data-color="#22c55e"></div>
+        <div class="meta"><h3>До MVP VigoImmobilien</h3><p>Готово: вся платформа + ИИ-совет (фундамент). Осталось: дожать R15 + панель арендатора.</p></div>
+      </div>
+      <div class="ring-card">
+        <div class="ring" data-pct="72" data-color="#a855f7"></div>
+        <div class="meta"><h3>До полного релиза (R18)</h3><p>Осталось: R16 рост, R17 финансы, R18 управление + GA-hardening.</p></div>
+      </div>
+      <div class="ring-card">
+        <div class="ring" data-pct="100" data-color="#38bdf8"></div>
+        <div class="meta"><h3>Фундамент (R1–R10)</h3><p>Вся базовая платформа закрыта и в проде на vigos.io.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT OWNER WILL SEE -->
+  <section>
+    <div class="sec-head"><h2>Что владелец увидит — и когда</h2><span class="hint">конкретные видимые деливераблы</span></div>
+    <div class="steps">
+      <div class="step s-ok"><span class="num">1</span><div class="when">Сегодня · готово</div><div class="ico">📊</div><h4>Эта роадмапа + живой приём лидов</h4><p>Лиды с сайта уже падают в Telegram (R13, в проде с 26 мая), CEO-бот @VigoCEO_bot отвечает. Можно показать прямо сейчас.</p></div>
+      <div class="step"><span class="num">2</span><div class="when">~1 неделя</div><div class="ico">🎬</div><h4>Демо-слайс сквозного флоу</h4><p>Показ end-to-end: лид → ИИ Sales квалифицирует → Realtor подбирает объекты через Justimmo → ведём в CRM (на демо-данных).</p></div>
+      <div class="step s-mvp"><span class="num">3</span><div class="when">2-я пол. июня · MVP</div><div class="ico">🎯</div><h4>Тенант-панель + рабочий флоу</h4><p>Запуск тенант-админки (app.vigos.io) + стабилизированный боевой флоу VigoImmobilien. Это и есть MVP «Vigo v1».</p></div>
+      <div class="step"><span class="num">4</span><div class="when">~конец августа · релиз</div><div class="ico">🏁</div><h4>Полный продукт</h4><p>Все 10 ролей ИИ-совета + single-tenant GA hardening (R18).</p></div>
+    </div>
+  </section>
+
+  <!-- GANTT -->
+  <section>
+    <div class="sec-head"><h2>Таймлайн R1 → R19</h2><span class="hint">реальные даты (R1–R14) и прогноз (R15–R19)</span></div>
+    <div class="gantt-wrap">
+      <div class="gantt" id="gantt"></div>
+      <div class="gnote" id="gnote"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:linear-gradient(120deg,#16a34a,#22c55e)"></i> Готово</span>
+      <span><i style="background:linear-gradient(120deg,#0ea5e9,#38bdf8)"></i> В проде / live</span>
+      <span><i style="background:linear-gradient(120deg,#0e7490,#22d3ee)"></i> Частично</span>
+      <span><i style="background:linear-gradient(120deg,#d97706,#fbbf24)"></i> Сейчас в работе</span>
+      <span><i style="background:linear-gradient(120deg,#7c3aed,#a855f7)"></i> Запланировано</span>
+      <span><i style="background:repeating-linear-gradient(45deg,#475569,#475569 5px,#3c485c 5px,#3c485c 10px)"></i> Будущее (SaaS)</span>
+    </div>
+  </section>
+
+  <!-- FOUNDATION SPRINT -->
+  <section>
+    <div class="sec-head"><h2>Почему так быстро</h2><span class="hint">сколько и на что ушло времени</span></div>
+    <div class="sprint">
+      <h3>⚡ «Foundation Sprint» — вся базовая платформа за 6 дней (6–11 мая)</h3>
+      <p class="desc">Каждый эпик строил не один разработчик, а <b>рой из 50–95 ИИ-агентов</b> (architect → coder → tester → reviewer), волнами, по TDD. Поэтому то, что в смете занимало 174–180 человеко-дней, физически закрылось за календарные дни. Время «уходило» в основном на масштаб (R6, R9) и на отладку деплоя (R14).</p>
+      <div class="sprint-grid" id="sprintGrid"></div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section>
+    <div class="sec-head"><h2>Графики</h2><span class="hint">накопленные тесты и затраты времени по эпикам</span></div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Рост тестовой базы</h3>
+        <p class="csub">Юнит-тесты накопительно по мере закрытия эпиков (надёжность платформы)</p>
+        <svg id="chartTests" viewBox="0 0 520 260" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="chart-card">
+        <h3>Wall-clock на эпик (часы)</h3>
+        <p class="csub">Фактическое календарное время «роя» на каждый эпик</p>
+        <svg id="chartHours" viewBox="0 0 520 260" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- EPIC CARDS -->
+  <section>
+    <div class="sec-head"><h2>Все эпики — детально</h2><span class="hint" id="epicHint">переключите роль вверху, чтобы увидеть бизнес- или тех-детали</span></div>
+    <div class="filters" id="filters">
+      <button data-f="all" class="active">Все</button>
+      <button data-f="done">Готовые</button>
+      <button data-f="prog">В работе</button>
+      <button data-f="plan">Впереди</button>
+    </div>
+    <div class="epics" id="epics"></div>
+  </section>
+
+  <!-- FOCUS NEXT 2 WEEKS -->
+  <section>
+    <div class="sec-head"><h2>Фокус ближайших 2 недель — «дожимаем»</h2><span class="hint">честная последняя миля</span></div>
+    <div class="focus">
+      <div class="fc"><h4>1. Дожать R15 (ядро дохода)</h4><p>Sales Director, Realtor + Justimmo, CRM Manager. R15.1 и R15.6 готовы; идёт R15.4.</p><span class="tag">в работе</span></div>
+      <div class="fc"><h4>2. Тенант-панель MVP</h4><p>Допилить и задеплоить frontend/apps/tenant-dashboard на app.vigos.io. Сейчас в проде только панель супер-админа.</p><span class="tag">следующий шаг</span></div>
+      <div class="fc"><h4>3. Стабилизация</h4><p>Починить то, что ломается: миграции, healthz, деплой-каскады. Снять ярлык «нестабильно» с боевого флоу.</p><span class="tag">параллельно</span></div>
+      <div class="fc"><h4>4. Демо-слайс для владельца</h4><p>Собрать показываемый сквозной сценарий на демо-данных — видимый результат уже через ~неделю.</p><span class="tag">видимый выход</span></div>
+    </div>
+  </section>
+
+  <div class="disclaimer">
+    📌 <b>Честно о статусе и датах:</b> R1–R14 — фактические даты закрытия (из completion-репортов). R15 — в работе. <b>Тенант-админка пока не запущена</b> (в проде работает только супер-админ); часть боевого флоу ещё стабилизируется. R16–R19 и точки релиза (демо-слайс ~1 нед, MVP — 2-я пол. июня, полный релиз ~конец августа) — <b>прогноз</b> при текущем темпе параллельных роёв; зависят от блокеров (Winston key, Justimmo feed, стабилизация, EU AI Act).
+  </div>
+
+  <div class="footer">
+    <span>Источник: <b>_bmad-output/</b> completion-репорты · <b>epics.v3.md</b> · roadmap-память (locked 2026-05-31)</span>
+    <span>Сгенерировано для <b>ai@newbsa.com</b> · 2026-06-02</span>
+  </div>
+
+</div>
+
+<script>
+/* ============== DATA ============== */
+const EPICS = [
+  { id:'R1', name:'Foundation', phase:'Платформа · фундамент', status:'done',
+    start:'2026-05-06', end:'2026-05-07', sd:7, st:7, dd:13, tests:'155 unit + 16 arch', agents:'6', pr:'PR #7', hours:'~1–2 дня',
+    f:'Фундамент всего дома: безопасный вход, строгая изоляция данных каждого клиента, защита от подделки токенов и мошеннических повторов. Без этого ничего нельзя строить.',
+    d:'Clean Architecture + Vertical Slices, JWT RS256 + JWKS, triple-defense tenant isolation (TenantBoundary + EF filter + RLS GUC, PgBouncer-safe), Hangfire, transactional outbox, idempotency middleware, HMAC webhooks, Vault AES-256-GCM. Закрыты блокеры D1-C1 (JWT no-op) и D1-C4 (утечка GUC).',
+    i:'Производственный блокер №1 закрыт за день — дальше всё параллелится.' },
+
+  { id:'R2', name:'Observability + LLM Routing', phase:'Платформа · наблюдаемость', status:'done',
+    start:'2026-05-07', end:'2026-05-07', sd:5, st:5, dd:14, tests:'+97 unit (252 всего)', agents:'мульти-рой', pr:'PR #8–11', hours:'~6 ч',
+    f:'Контроль расходов на ИИ: каждый вызов модели считается в деньгах, есть жёсткий стоп при превышении бюджета. Плюс полная диагностика — если что-то сломалось, видно где.',
+    d:'MEAI IChatClient pipeline (TenantTagging→CostTracking→BudgetEnforcement→RateLimit→Caching), cost ledger с NIL-UUID PK fix, partitioned audit_log, OTel→LGTM (Loki/Tempo/Mimir)+Sentry, routing engine. 8 ADR (COST-001, OBS-002..009).',
+    i:'Защита от «сюрпризов» в счёте за LLM — hard-stop 402 при 100% бюджета.' },
+
+  { id:'R3', name:'AI Agents on MAF', phase:'Платформа · ИИ-агенты', status:'done',
+    start:'2026-05-07', end:'2026-05-07', sd:9, st:9, dd:18, tests:'+68 unit (335 всего)', agents:'мульти-рой', pr:'epic/r3', hours:'~1 день',
+    f:'Команда ИИ-сотрудников: пишут, проверяют качество, исследуют и локализуют контент сами — с откатом при ошибке.',
+    d:'Microsoft Agent Framework 1.4.0 через IChatClient, 5 продакшн-агентов (Writer/QA/Researcher/Auditor/Localizer), [Tool] auto-discovery + ToolRegistry, SSRF guard, prompt-injection sanitiser, workflow DSL (sequential/concurrent/handoff) + checkpointing, saga-компенсация.',
+    i:'Product-defining capability — это ядро всей «фабрики».' },
+
+  { id:'R4', name:'Sites + Content + WordPress', phase:'Платформа · публикация', status:'done',
+    start:'2026-05-07', end:'2026-05-08', sd:5, st:5, dd:11, tests:'+179 unit (514 всего)', agents:'мульти-рой', pr:'PR #14', hours:'~3.5 ч',
+    f:'Автопубликация: готовый контент сам уходит на сайты WordPress за минуты, с историей версий и без ручной работы.',
+    d:'Site CRUD + WP connection test, Article CRUD + revisions + soft-delete, идемпотентный WP publish job, кастомный плагин «Platform Connector» (media+post+ACF+SEO+JSON-LD одним вызовом), pgvector HNSW embeddings + internal linker. 224% от плана по тестам.',
+    i:'Единственный канал публикации в scope — закрыт быстро.' },
+
+  { id:'R5', name:'Tracking + Conversions', phase:'Платформа · аналитика дохода', status:'done',
+    start:'2026-05-07', end:'2026-05-08', sd:3, st:3, dd:5, tests:'+87 unit (611 всего)', agents:'мульти-рой', pr:'epic/r5', hours:'~1.5 ч',
+    f:'Учёт денег: видно, какая статья и какой партнёр принесли конверсию — без двойного счёта и без мошеннических повторов.',
+    d:'Keitaro postback receiver (HMAC + replay-window + click_id dedup), click-ID redirect (1000 RPS sub-100ms, bot-detection), Conversion Analyst agent (CRO-рекомендации). Миграции 0064–0066, 4 ADR (R5-001..004).',
+    i:'Замыкает атрибуцию дохода — основа для FTD/NGR-аналитики.' },
+
+  { id:'R6', name:'Admin Dashboard', phase:'Платформа · интерфейс', status:'done',
+    start:'2026-05-08', end:'2026-05-08', sd:9, st:9, dd:33, tests:'1384 (877 в зоне R6)', agents:'~52', pr:'PR #17', hours:'~11.5 ч',
+    f:'Панель управления супер-админа: платформа управляется через веб без копания в БД, премиальный «стеклянный» дизайн. ⚠ Отдельная панель для арендаторов (тенантов) пока НЕ запущена — это ближайший видимый шаг (трек «Tenant Admin Panel»).',
+    d:'Next.js 15 monorepo (Turborepo+pnpm, 3 app), SignalR + Redis backplane, Auth.js v5 ↔ JWT exchange, Monaco-редактор + AI-сайдбар, ReactFlow workflow-визуализатор, glassmorphism GA (12 primitives), Argon2id API keys, i18n RU/EN. 12 ADR, 4 миграции, 11 CRIT пофикшено в W5. Прод: @igf/super-admin задеплоен; @igf/tenant-dashboard собран, но НЕ задеплоен (отдельный трек).',
+    i:'Без операторской панели нет онбординга арендаторов — P0.' },
+
+  { id:'R7', name:'Vault Secret Management UI', phase:'Платформа · секреты', status:'done',
+    start:'2026-05-08', end:'2026-05-09', sd:11, st:11, dd:22, tests:'944 unit + 67 arch + 93 FE', agents:'~50', pr:'epic/r7-vault-ui', hours:'~10 ч',
+    f:'Управление секретами (ключи, пароли) полностью через UI — без командной строки, с историей изменений и аудитом каждого просмотра.',
+    d:'VaultSharp SDK + AppRole, tree-browser + masked viewer, reveal с audit-first, CRUD + KV-v2 CAS, version history + rollback, rotation scan job, .env import wizard, AppRole UI, health widget, SignalR collab + 3-way merge, policy editor. 6 ADR (VAULT-001..006), 0 CRIT/HIGH после fix-forward.',
+    i:'Zero-CLI ротация секретов — ops-эффективность.' },
+
+  { id:'R8', name:'Astro Satellite Network', phase:'Рост · сеть сайтов', status:'done',
+    start:'2026-05-09', end:'2026-05-09', sd:5, st:5, dd:14, tests:'1244 unit + 111 arch + 278 FE', agents:'~75', pr:'PR #32', hours:'~16 ч',
+    f:'Сеть сайтов-спутников: массовая генерация тысяч уникальных сайтов для продвижения, с встроенным этическим контролем (не вводить пользователя в заблуждение).',
+    d:'Astro 5.x theme engine (Base × Variators, SHA-256 seed → 10K+ уникальных), 7 JSON-LD генераторов, 9-инвариантный footprint-ethics gate, деплой на Cloudflare Pages через Terraform + wrangler. Italy → BLOCK_PUBLISH (Decreto Dignità). Tag v0.9.0.',
+    i:'Каналы трафика для PBN — высокая кардинальность.' },
+
+  { id:'R9', name:'Keitaro Expert Integration', phase:'Рост · трекинг+реклама', status:'done',
+    start:'2026-05-09', end:'2026-05-10', sd:12, st:12, dd:31, tests:'1448 unit + 177 arch', agents:'~64', pr:'PR #45', hours:'~32 ч',
+    f:'Глубокая интеграция трекинга и рекламных платформ: TikTok, Google Ads, Meta — конверсии и расходы видны по каждой платформе.',
+    d:'Keitaro Expert deployment (Terraform+Vault), NSwag ACL на 87 Admin API endpoints + spec-drift CI gate, 5 ad-адаптеров (TikTok/Google Ads/Meta CAPI/Namecheap/Cloudflare), платформизация конверсий. 3 флага LEGAL-REVIEW-PENDING блокируют прод Meta CAPI (DPIA). Tag v0.10.0.',
+    i:'Meta CAPI прод заблокирован до закрытия DPIA — регуляторный риск.' },
+
+  { id:'R10', name:'Production Readiness', phase:'Платформа · готовность', status:'done',
+    start:'2026-05-10', end:'2026-05-11', sd:13, st:13, dd:12, tests:'84/0/16 R10 gate', agents:'мульти-рой', pr:'PR #46', hours:'~1 день',
+    f:'Готовность к запуску: регистрация по приглашениям, дашборд инвайтов, безопасные пароли, оплата через Stripe, health-проверки.',
+    d:'Signup invite-only, invite dashboard, Argon2id, Stripe customer portal, Keitaro BaseUrl, healthz arch-tests. Tag v0.11.0. Здесь выучен mandate worktree-isolation для параллельных impl-агентов.',
+    i:'Платформа vigos.io готова к боевым арендаторам.' },
+
+  { id:'R11', name:'Webmobilien Lead Engine & Content Factory', phase:'Вертикаль · недвижимость', status:'partial',
+    start:'2026-05-11', end:'2026-05-26', sd:6, st:15, dd:'28–34', tests:'спека 1208 строк', agents:'~50 (план)', pr:'spec + R13 live', hours:'—',
+    f:'Голосовой ИИ-обзвон лидов недвижимости за 5 минут + видео-контент-фабрика (клон голоса + аватар). Приём заявок уже живой (через R13).',
+    d:'Vapi voice provider, Justimmo connector (R11.2 переиспользуется R15), 4-touch cadence, call analyzer, ElevenLabs TTS, HeyGen avatar, Creatomate video. TKG §107 + DSGVO Art-5/17 consent-gate. Часть live как R13; голос/видео — план. Дедлайн бизнеса 2026-06-15.',
+    i:'Первый платящий tenant; бизнес-дедлайн 15 июня.' },
+
+  { id:'R12', name:'Personal AI Assistant', phase:'Вертикаль · ассистент', status:'partial',
+    start:'2026-05-11', end:'2026-05-31', sd:0, st:14, dd:34, tests:'спека 1168 строк', agents:'план', pr:'foundation в R14', hours:'—',
+    f:'Личный ИИ-ассистент владельца: переписка (A1, Bauträger), расчёты (НДС, лизинг), разбор документов, календарь — помнит весь контекст.',
+    d:'Telegram owner-bot (allowlist из Vault), память на pgvector + episodic recall, A1/Baufirmen кампании, детерминированные калькуляторы MwSt/Leasing, prompt-version registry + golden-test eval (замена fine-tuning). Фундамент памяти/persona переиспользован в R14.',
+    i:'Owner-only; основа writable-памяти ИИ-совета.' },
+
+  { id:'R13', name:'Webmobilien Lead-Pipeline', phase:'Вертикаль · live-движок', status:'live',
+    start:'2026-05-26', end:'2026-05-26', sd:1, st:1, dd:'—', tests:'в проде', agents:'—', pr:'67b2748', hours:'live',
+    f:'Живой приём лидов: заявка с сайта → ИИ-черновик ответа → одобрение в Telegram. Работает в проде с 26 мая.',
+    d:'n8n → intake → draft → Telegram approval. Реальный поток лидов VigoImmobilien. Базис, на котором висят роли R15 (прямой ROI).',
+    i:'Живой lead-движок = источник дохода, на который встаёт R15.' },
+
+  { id:'R14', name:'AI Board Foundation', phase:'ИИ-совет · фундамент', status:'done',
+    start:'2026-05-26', end:'2026-05-31', sd:9, st:9, dd:'8–10', tests:'9/9 acceptance', agents:'мульти-рой', pr:'PR #125', hours:'~5 дней',
+    f:'Мозг ИИ-совета директоров: Telegram CEO-бот @VigoCEO_bot, который понимает запросы и управляет всеми ролями. Плюс память, контроль качества и учёт стоимости каждой роли.',
+    d:'Master orchestrator (PoC), writable memory (pa_agent_notes), Winston quality gate, per-agent cost attribution, cross-tenant arch-test. Tag v0.15.0. ⚠ Критично: tool-роли ОБЯЗАНЫ использовать keyed client anthropic-haiku-tools (text-only транспорт теряет function-calls). Деплой выявил каскад миграционных багов (PR #126–133).',
+    i:'Foundation для всех 10 ролей; deploy-инциденты подсветили хрупкость миграций.' },
+
+  { id:'R15', name:'AI Board Revenue (Vigo v1)', phase:'ИИ-совет · доход 💰', status:'prog',
+    start:'2026-06-01', end:'2026-06-09', sd:2, st:6, dd:'10–13', tests:'TDD-first', agents:'рой + worktree', pr:'PR #136, #139', hours:'идёт',
+    f:'Зарабатывающее ядро: лид приходит → ИИ Sales Director квалифицирует → Realtor подбирает объекты через Justimmo → CRM Manager ведёт сделку. Прямой доход для VigoImmobilien. ✅ R15.1 (CEO-оркестратор) и R15.6 (энейблеры) готовы; сейчас R15.4 (Realtor).',
+    d:'CEO Hybrid-handoff (MAF HandoffWorkflowBuilder) → prod, writable pa_agent_notes + lead→Realtor assignment, Sales Director (funnel, consent-gated suggest-only), Realtor + Justimmo FindMatchesAsync property-match → broker handoff (AC14 Art-50 disclosure), CRM Manager state-machine + Justimmo sync. Миграции 0142+. INV-R15-1: роли на anthropic-haiku-tools. R15.1✅ R15.2🔄 R15.3⏳ R15.4🎯 R15.5⏳ R15.6✅.',
+    i:'Критпуть к MVP. Замыкает lead→revenue для первого tenant.' },
+
+  { id:'TP', name:'Tenant Admin Panel', phase:'Видимое · панель арендатора', status:'plan',
+    start:'2026-06-09', end:'2026-06-22', sd:0, st:8, dd:'~6', tests:'—', agents:'план', pr:'frontend/apps/tenant-dashboard', hours:'прогноз',
+    f:'Обычная админка арендатора (не супер-админа): личный кабинет, его лиды, объекты, метрики. ⚠ СЕЙЧАС работает только панель супер-админа — тенант-панель есть в монорепо, но пока НЕ задеплоена. Это главный ближайший видимый шаг для владельца.',
+    d:'Допил + деплой существующего frontend/apps/tenant-dashboard на app.vigos.io (Caddyfile «when split», данные из R14.6 endpoints). Отдельный трек после/параллельно R15. Сейчас в проде только @igf/super-admin.',
+    i:'Главный видимый деливерабл — закрывает ощущение «нет выхода» у владельца.' },
+
+  { id:'R16', name:'Growth (Marketing + SEO)', phase:'ИИ-совет · рост', status:'plan',
+    start:'2026-06-15', end:'2026-07-08', sd:0, st:0, dd:'~12', tests:'—', agents:'план', pr:'промт готов', hours:'прогноз',
+    f:'ИИ-маркетинг и SEO: роли Marketing Manager и SEO Manager сами продвигают бренд и контент — переиспользуя контент-фабрику и SEO-агентов.',
+    d:'Marketing Manager + SEO Manager роли; reuse content-factory R3/R4, tech-SEO/link агенты R6.6. Публичный контент → ложится около EU AI Act deadline → Legal/Compliance (R18.2) вытаскивается параллельно для гейтинга публикаций.',
+    i:'Рост охвата без найма; пересечение с дедлайном AI Act.' },
+
+  { id:'R17', name:'Finance & Intel (CFO + Analyst)', phase:'ИИ-совет · финансы', status:'plan',
+    start:'2026-06-22', end:'2026-07-12', sd:0, st:0, dd:'~12', tests:'—', agents:'план', pr:'промт готов', hours:'прогноз',
+    f:'ИИ-финансист и аналитик рынка: CFO следит за деньгами и ROI, Market Analyst анализирует районы Вены и рынок недвижимости.',
+    d:'CFO на cost-ledger R2.4/R7.2 (P&L, runway, burn-rate), Market Analyst (Wien district analytics, Realtyna MLS). Идёт параллельно после R15.',
+    i:'Финансовая прозрачность и рыночная аналитика для решений.' },
+
+  { id:'R18', name:'Governance + Single-Tenant GA', phase:'ИИ-совет · релиз 🏁', status:'plan',
+    start:'2026-07-12', end:'2026-08-25', sd:0, st:0, dd:'~14', tests:'—', agents:'план', pr:'промт готов', hours:'прогноз',
+    f:'Финал: все 10 ролей ИИ-совета на месте + полировка продукта до релизного качества (single-tenant GA). Это и есть полный релиз продукта для VigoImmobilien.',
+    d:'HR/Training + Legal/Compliance роли, single-tenant GA hardening. Legal/Compliance вытащен параллельно R16 ради EU AI Act Art 50 (2026-08-02). Закрывает релиз №1.',
+    i:'Полный релиз single-tenant (release №1). Цель ~конец лета 2026.' },
+
+  { id:'R19', name:'Multi-Tenant SaaS', phase:'Продукт · SaaS', status:'future',
+    start:'2026-09-01', end:'2026-10-15', sd:0, st:0, dd:'TBD', tests:'—', agents:'будущее', pr:'промт готов', hours:'будущее',
+    f:'Продукт для всех агентств: снять single-tenant ограничение, включить биллинг и онбординг других агентств недвижимости AT/DE. Коммерческий SaaS.',
+    d:'Снять single-tenant pin, billing on, onboarding других tenant-ов. Обёртка над всем, что построено в R15–R18. Это release №2 (коммерциализация).',
+    i:'Масштабирование выручки: из одного tenant в SaaS-продукт.' },
+];
+
+const STATS = [
+  { n:'14', l:'эпиков построено' },
+  { n:'88+', l:'stories закрыто' },
+  { n:'1448+', l:'юнит-тестов (пик)' },
+  { n:'~27', l:'календарных дней' },
+  { n:'6–12 мес', l:'≈ работа команды 5–8 инж.' },
+  { n:'2', l:'точки релиза' },
+];
+
+/* milestones on the gantt */
+const MILES = [
+  { date:'2026-06-09', flag:'🎬', lab:'Демо-слайс' },
+  { date:'2026-06-22', flag:'🎯', lab:'MVP · тенант-панель' },
+  { date:'2026-08-02', flag:'⚖️', lab:'EU AI Act Art 50' },
+  { date:'2026-08-31', flag:'🏁', lab:'Полный релиз' },
+];
+
+/* foundation sprint detail */
+const SPRINT = [
+  { e:'R1', t:'Фундамент + безопасность', h:'~1–2 дня' },
+  { e:'R2', t:'Наблюдаемость + LLM-роутинг', h:'~6 ч' },
+  { e:'R3', t:'ИИ-агенты (MAF)', h:'~1 день' },
+  { e:'R4', t:'Публикация в WordPress', h:'~3.5 ч' },
+  { e:'R5', t:'Трекинг конверсий', h:'~1.5 ч' },
+  { e:'R6', t:'Админ-панель (52 агента!)', h:'~11.5 ч', heavy:true },
+  { e:'R7', t:'Vault UI (секреты)', h:'~10 ч', heavy:true },
+  { e:'R8', t:'Сеть сайтов Astro', h:'~16 ч', heavy:true },
+  { e:'R9', t:'Keitaro Expert + реклама', h:'~32 ч', heavy:true },
+  { e:'R10', t:'Готовность к проду', h:'~1 день' },
+];
+
+/* cumulative tests over closed epics */
+const TESTSERIES = [
+  {x:'R1',y:155},{x:'R2',y:252},{x:'R3',y:335},{x:'R4',y:514},{x:'R5',y:611},
+  {x:'R6',y:877},{x:'R7',y:944},{x:'R8',y:1244},{x:'R9',y:1448},
+];
+const HOURS = [
+  {x:'R1',h:36},{x:'R2',h:6},{x:'R3',h:24},{x:'R4',h:3.5},{x:'R5',h:1.5},
+  {x:'R6',h:11.5},{x:'R7',h:10},{x:'R8',h:16},{x:'R9',h:32},{x:'R10',h:24},{x:'R14',h:120},
+];
+
+/* ============== RENDER ============== */
+const $=(s,r=document)=>r.querySelector(s);
+const day=d=>Math.round(new Date(d).getTime()/864e5);
+const AX_START='2026-05-05', AX_END='2026-10-20';
+const ax0=day(AX_START), ax1=day(AX_END), axSpan=ax1-ax0;
+const pos=d=>((day(d)-ax0)/axSpan)*100;
+
+/* stats */
+$('#stats').innerHTML=STATS.map(s=>`<div class="stat"><div class="n">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+
+/* sprint */
+$('#sprintGrid').innerHTML=SPRINT.map(s=>`<div class="sp"><div class="e">${s.e}</div><div class="t">${s.t}</div><div class="h ${s.heavy?'heavy':''}">${s.h}</div></div>`).join('');
+
+/* rings */
+document.querySelectorAll('.ring').forEach(r=>{
+  const pct=+r.dataset.pct, col=r.dataset.color, R=46, C=2*Math.PI*R, off=C*(1-pct/100);
+  r.innerHTML=`<svg width="104" height="104" viewBox="0 0 104 104">
+    <circle cx="52" cy="52" r="${R}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
+    <circle cx="52" cy="52" r="${R}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round"
+      stroke-dasharray="${C}" stroke-dashoffset="${C}" style="transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)"/>
+  </svg><div class="pct" style="color:${col}">${pct}%</div>`;
+  const c2=r.querySelectorAll('circle')[1];
+  setTimeout(()=>c2.style.strokeDashoffset=off,200);
+});
+
+/* gantt */
+const lblw=176;
+const gantt=$('#gantt'); gantt.style.setProperty('--lblw',lblw+'px');
+// axis ticks (months)
+const months=[['2026-05-01','Май'],['2026-06-01','Июн'],['2026-07-01','Июл'],['2026-08-01','Авг'],['2026-09-01','Сен'],['2026-10-01','Окт']];
+let axis=`<div class="gantt-axis">`;
+months.forEach(([d,n])=>{ if(pos(d)>=0&&pos(d)<=100) axis+=`<div class="mtick" style="left:${pos(d)}%">${n}</div>`; });
+axis+=`</div>`;
+// phase bands
+const bands=[
+  {s:'2026-05-05',e:'2026-05-12',c:'rgba(34,197,94,.06)'},   // foundation sprint
+  {s:'2026-05-26',e:'2026-06-10',c:'rgba(245,158,11,.06)'},  // ai board now
+  {s:'2026-06-10',e:'2026-08-31',c:'rgba(168,85,247,.05)'},  // to release
+];
+let bandHtml=`<div class="gantt-bands">`+bands.map(b=>`<div class="band" style="left:${pos(b.s)}%;width:${(pos(b.e)-pos(b.s))}%;background:${b.c}"></div>`).join('')+`</div>`;
+// rows
+let rows='';
+EPICS.forEach(e=>{
+  let L=pos(e.start), W=Math.max(pos(e.end)-pos(e.start),1.4);
+  const cls={done:'s-done',live:'s-live',prog:'s-prog',plan:'s-plan',future:'s-future',partial:'s-partial'}[e.status];
+  rows+=`<div class="grow"><div class="glabel" title="${e.name}">${e.id} · ${e.name}</div>
+    <div class="gtrack"><div class="gbar ${cls}" style="left:${L}%;width:${W}%" title="${e.id} ${e.name}\n${e.start} → ${e.end}">${e.id}<span class="gb-txt">${ganttRight(e)}</span></div></div></div>`;
+});
+// milestone markers overlay (absolute over track area)
+let marks='';
+const MCOL={'🎬':'#38bdf8','🎯':'#4ade80','⚖️':'#f87171','🏁':'#c084fc'};
+MILES.forEach(m=>{ marks+=`<div class="gmark" style="left:calc(${lblw}px + (100% - ${lblw}px) * ${(pos(m.date)/100).toFixed(4)});background:${MCOL[m.flag]||'#c084fc'}">
+  <div class="flag">${m.flag}</div><div class="ml-lab">${m.lab}</div></div>`; });
+gantt.innerHTML=axis+`<div style="position:relative">${bandHtml}${rows}<div style="position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none">${marks}</div></div>`;
+$('#gnote').textContent='Зелёная зона — «Foundation Sprint» (6 дней). Оранжевая — старт ИИ-совета (сейчас). Фиолетовая — путь к полному релизу.';
+
+function ganttRight(e){
+  if(document.body.classList.contains('persona-dev')) return e.tests;
+  if(document.body.classList.contains('persona-investor')) return e.hours;
+  return '';
+}
+
+/* charts */
+function lineChart(svg,data,color,fmt){
+  const W=520,H=260,pad={l:44,r:16,t:16,b:34};
+  const xs=(i)=>pad.l+(i/(data.length-1))*(W-pad.l-pad.r);
+  const max=Math.max(...data.map(d=>d.y))*1.08;
+  const ys=(v)=>H-pad.b-(v/max)*(H-pad.t-pad.b);
+  let grid='';
+  for(let g=0;g<=4;g++){const v=max*g/4,y=ys(v);grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="${pad.l-8}" y="${y+4}" fill="#6b7794" font-size="10" text-anchor="end">${Math.round(v)}</text>`;}
+  let area=`M ${xs(0)} ${ys(data[0].y)}`, line=area;
+  data.forEach((d,i)=>{ if(i){line+=` L ${xs(i)} ${ys(d.y)}`; area+=` L ${xs(i)} ${ys(d.y)}`;}});
+  area+=` L ${xs(data.length-1)} ${H-pad.b} L ${xs(0)} ${H-pad.b} Z`;
+  let pts='',labs='';
+  data.forEach((d,i)=>{ pts+=`<circle cx="${xs(i)}" cy="${ys(d.y)}" r="3.5" fill="${color}" stroke="#0a0e1a" stroke-width="1.5"/>`;
+    labs+=`<text x="${xs(i)}" y="${H-pad.b+18}" fill="#94a3b8" font-size="10" text-anchor="middle">${d.x}</text>`;});
+  svg.innerHTML=`<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#g1)"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.5"/>${pts}${labs}`;
+}
+function barChart(svg,data,color){
+  const W=520,H=260,pad={l:34,r:12,t:16,b:34};
+  const max=Math.max(...data.map(d=>d.h))*1.1;
+  const bw=(W-pad.l-pad.r)/data.length;
+  const ys=(v)=>H-pad.b-(v/max)*(H-pad.t-pad.b);
+  let grid='';
+  for(let g=0;g<=4;g++){const v=max*g/4,y=ys(v);grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="${pad.l-6}" y="${y+4}" fill="#6b7794" font-size="9.5" text-anchor="end">${Math.round(v)}</text>`;}
+  let bars='';
+  data.forEach((d,i)=>{ const x=pad.l+i*bw+bw*0.18,w=bw*0.64,y=ys(d.h),h=H-pad.b-y;
+    const c=d.h>=30?'#fbbf24':color;
+    bars+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${c}"><title>${d.x}: ${d.h} ч</title></rect>
+      <text x="${x+w/2}" y="${y-5}" fill="#cbd5e1" font-size="9" text-anchor="middle">${d.h}</text>
+      <text x="${x+w/2}" y="${H-pad.b+16}" fill="#94a3b8" font-size="9.5" text-anchor="middle">${d.x}</text>`;});
+  svg.innerHTML=grid+bars;
+}
+lineChart($('#chartTests'),TESTSERIES,'#38bdf8');
+barChart($('#chartHours'),HOURS,'#6366f1');
+
+/* epic cards */
+function chip(label,val,cls=''){return `<span class="chip ${cls}">${label} <b>${val}</b></span>`;}
+function renderEpics(filter='all'){
+  const map={done:'done',live:'live',prog:'prog',plan:'plan',future:'future',partial:'partial'};
+  const out=EPICS.filter(e=>{
+    if(filter==='all')return true;
+    if(filter==='done')return ['done','live','partial'].includes(e.status);
+    if(filter==='prog')return e.status==='prog';
+    if(filter==='plan')return ['plan','future'].includes(e.status);
+    return true;
+  }).map(e=>{
+    const badgeTxt={done:'Готово',live:'Live',prog:'В работе',plan:'План',future:'Будущее',partial:'Частично'}[e.status];
+    const pc=e.st? Math.round((e.sd/e.st)*100):(e.status==='done'||e.status==='live'?100:0);
+    const pcls=e.status==='prog'?'prog':(e.status==='done'||e.status==='live'?'done':'');
+    let chips='';
+    chips+=`<span class="chip dev-only">${e.sd}/${e.st} stories</span>`;
+    chips+=`<span class="chip dev-only">тесты: <b>${e.tests}</b></span>`;
+    chips+=`<span class="chip dev-only">рой: <b>${e.agents}</b></span>`;
+    chips+=`<span class="chip dev-only">${e.pr}</span>`;
+    chips+=`<span class="chip investor-only">смета: <b>${e.dd} dd</b></span>`;
+    chips+=`<span class="chip investor-only">факт: <b>${e.hours}</b></span>`;
+    chips+=`<span class="chip founder-only">приоритет: <b>P0/P1</b></span>`;
+    return `<div class="epic ${map[e.status]}" data-status="${e.status}">
+      <div class="badge ${map[e.status]}">${badgeTxt}</div>
+      <div class="ehead"><div class="eid">${e.id}</div><div><div class="etitle">${e.name}</div><div class="ephase">${e.phase}</div></div></div>
+      <div class="edesc">
+        <span class="d-founder">${e.f}</span>
+        <span class="d-dev">${e.d}</span>
+        <span class="d-investor">${e.i}<br><span style="color:var(--muted)">${e.f}</span></span>
+      </div>
+      <div class="prog-line ${pcls}"><i style="width:${pc}%"></i></div>
+      <div class="emeta">${chips}</div>
+      <div class="edates">${e.start} → ${e.end}</div>
+    </div>`;
+  }).join('');
+  $('#epics').innerHTML=out;
+}
+renderEpics();
+
+/* filters */
+$('#filters').addEventListener('click',ev=>{
+  const b=ev.target.closest('button'); if(!b)return;
+  $('#filters').querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); renderEpics(b.dataset.f);
+});
+
+/* persona switch */
+const hints={
+  founder:'Бизнес-смысл и сроки. Технические детали скрыты — переключитесь на «Head Developer» для глубины.',
+  dev:'Stories, тесты, ADR, миграции, рои и PR по каждому эпику.',
+  investor:'Смета (dev-days) vs факт, вехи, дедлайны и регуляторные риски.'
+};
+$('.persona').addEventListener('click',ev=>{
+  const b=ev.target.closest('button'); if(!b)return;
+  const p=b.dataset.persona;
+  $('.persona').querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.body.className='persona-'+p;
+  $('#epicHint').textContent=hints[p];
+  // refresh gantt right-labels
+  gantt.querySelectorAll('.gbar').forEach((bar,i)=>{const sp=bar.querySelector('.gb-txt'); if(sp) sp.textContent=ganttRight(EPICS[i]);});
+});
+</script>
+</body>
+</html>
